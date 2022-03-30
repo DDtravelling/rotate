@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>trajectory_edit_panel</name>
+  <version>0.0.0</version>
+  <description>A Rviz panel on software deployment </description>
+
+  <maintainer email="xuzhaofeng11182@cvte.com">xzf</maintainer>
+
+
+   <license>TODO</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+
+  <build_depend>rviz</build_depend>
+  <exec_depend>rviz</exec_depend>
+
+  <build_depend>std_msgs</build_depend>
+  <exec_depend>std_msgs</exec_depend>
+
+  <build_depend>actionlib</build_depend>
+  <exec_depend>actionlib</exec_depend>
+  <build_depend>roslib</build_depend>
+  <build_depend>actionlib_msg</build_depend>
+  <exec_depend>actionlib_msg</exec_depend>
+
+  <build_depend>qtbase5-dev</build_depend>
+  <build_depend>qtmultimedia5-dev</build_depend>
+  <exec_depend>libqt5-core</exec_depend>
+  <exec_depend>libqt5-gui</exec_depend>
+  <exec_depend>libqt5-widgets</exec_depend>
+  <exec_depend>libqt5-multimedia5</exec_depend>
+  <exec_depend>libqt5-multimediawidgets5</exec_depend>
+  <exec_depend>roslib</exec_depend>
+  <export>
+      <rviz plugin="${prefix}/plugin_description1.xml"/>
+  </export>
+
+</package>
