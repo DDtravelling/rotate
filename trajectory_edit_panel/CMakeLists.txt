@@ -25,6 +25,9 @@ else()
   qt5_wrap_cpp(
                                  QT_MOC 
                                  include/TrajectoryEditPanel.h
+                                 include/qt5_compoment.h
+                                 RvizPanel/patheditpanel.h
+                                 RvizPanel/visiblepanel.h
                                  )
 endif()
 
@@ -38,10 +41,14 @@ include_directories(
     include
     ${catkin_INCLUDE_DIRS}
     ${ROS_DEVEL_LIB_DIR}
+    ./RvizPanel/
+    ./ui/
 )
 
 set(SOURCES 
 src/TrajectoryEditPanel.cpp
+RvizPanel/patheditpanel.cpp
+RvizPanel/visiblepanel.cpp
 ${QT_MOC}
 )
 
@@ -71,9 +78,9 @@ target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES}
     # robot_state 
     # utils       
     # almost_collision_detection_fcl
-    # rviz_visual_tools
-    # rviz_visual_tools_gui
-    # rviz_visual_tools_imarker_simple
+    rviz_visual_tools
+    rviz_visual_tools_gui
+    rviz_visual_tools_imarker_simple
     # # CGAL::CGAL
     # # CGAL::CGAL_Core
     ${FCL_LIBRARIES}
