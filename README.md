@@ -14,3 +14,5 @@ ros-melodic(18.04) Rviz QtMedia Eigen Qt5.12
 2）输入命令: catkin_make
 ###
 3）输入命令: roslaunch trajectory_edit_panel execute.launch
+###
+![alt 属性文本](./git_pic/show.gif)
