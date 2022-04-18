@@ -38,30 +38,33 @@
 #include <QtXml/QDomNode>
 #include <QtXml/QDomNodeList>
 
-class MultiInputDialog : public QDialog {
+class MultiInputDialog : public QDialog
+{
     Q_OBJECT
 public:
     const int m_GroupCount;
-    QLabel** m_Labels;
-    QLineEdit** m_LineEdits;
-    QPushButton* m_OKButton;
-    QPushButton* m_CancelButton;
+    QLabel **m_Labels;
+    QLineEdit **m_LineEdits;
+    QPushButton *m_OKButton;
+    QPushButton *m_CancelButton;
     QString trajectory_name;
     QString start_point_name;
     QString end_point_name;
     QString describe;
-    QVBoxLayout* layout;
-    QHBoxLayout* subLayout;
+    QVBoxLayout *layout;
+    QHBoxLayout *subLayout;
     bool is_ok;
 
 public:
-    MultiInputDialog(int count, QWidget* parent) : QDialog(parent), m_GroupCount(count) {
+    MultiInputDialog(int count, QWidget *parent) : QDialog(parent), m_GroupCount(count)
+    {
         layout = new QVBoxLayout;
 
-        m_Labels = new QLabel*[m_GroupCount];
-        m_LineEdits = new QLineEdit*[m_GroupCount];
+        m_Labels = new QLabel *[m_GroupCount];
+        m_LineEdits = new QLineEdit *[m_GroupCount];
         //设计界面
-        for (int i = 0; i < m_GroupCount; i++) {
+        for (int i = 0; i < m_GroupCount; i++)
+        {
             subLayout = new QHBoxLayout;
 
             m_LineEdits[i] = new QLineEdit(this);
@@ -87,63 +90,79 @@ public:
         connect(m_CancelButton, SIGNAL(clicked()), this, SLOT(reject()));
     }
 
-    ~MultiInputDialog() {
-        for (int i = 0; i < m_GroupCount; i++) {
+    ~MultiInputDialog()
+    {
+        for (int i = 0; i < m_GroupCount; i++)
+        {
             delete m_LineEdits[i];
         }
-        for (int i = 0; i < m_GroupCount; i++) {
+        for (int i = 0; i < m_GroupCount; i++)
+        {
             delete m_Labels[i];
         }
         delete m_OKButton;
         delete m_CancelButton;
     }
 
-    void SetLabelTexts(const QStringList& listText) {
-        for (int i = 0; i < listText.size(); i++) {
-            if (i >= m_GroupCount) break;
+    void SetLabelTexts(const QStringList &listText)
+    {
+        for (int i = 0; i < listText.size(); i++)
+        {
+            if (i >= m_GroupCount)
+                break;
             m_Labels[i]->setText(listText.at(i));
             m_Labels[i]->setBaseSize(QSize(200, 50));
         }
     }
 
-    void SetOneLabelText(int index, const QString& text) {
+    void SetOneLabelText(int index, const QString &text)
+    {
         m_Labels[index]->setText(text);
         m_Labels[index]->setBaseSize(QSize(200, 50));
     }
 
-    void SetLabelsWidth(int width) {
-        for (int i = 0; i < m_GroupCount; i++) m_Labels[i]->setFixedWidth(width);
+    void SetLabelsWidth(int width)
+    {
+        for (int i = 0; i < m_GroupCount; i++)
+            m_Labels[i]->setFixedWidth(width);
     }
 
-    void SetLineEditRegExp(int index, QRegExp regExp) {
-        QValidator* validator = new QRegExpValidator(regExp, this);
+    void SetLineEditRegExp(int index, QRegExp regExp)
+    {
+        QValidator *validator = new QRegExpValidator(regExp, this);
         m_LineEdits[index]->setValidator(validator);
     }
 
     QString GetOneText(int index) { return m_LineEdits[index]->text(); }
 
-    QStringList GetAllTexts() {
+    QStringList GetAllTexts()
+    {
         QStringList list;
-        for (int i = 0; i < m_GroupCount; i++) {
+        for (int i = 0; i < m_GroupCount; i++)
+        {
             list.push_back(m_LineEdits[i]->text());
         }
         return list;
     }
 
-    void accept() {
-        if (m_GroupCount == 4) {
+    void accept()
+    {
+        if (m_GroupCount == 4)
+        {
             trajectory_name = m_LineEdits[0]->text();
             start_point_name = m_LineEdits[1]->text();
             end_point_name = m_LineEdits[2]->text();
             describe = m_LineEdits[3]->text();
         }
 
-        if (m_GroupCount == 2) {
+        if (m_GroupCount == 2)
+        {
             trajectory_name = m_LineEdits[0]->text();
             describe = m_LineEdits[1]->text();
         }
 
-        for (int i = 0; i < m_GroupCount; i++) {
+        for (int i = 0; i < m_GroupCount; i++)
+        {
             m_LineEdits[i]->setText("");
         }
         this->close();
@@ -151,8 +170,10 @@ public:
         is_ok = true;
     }
 
-    void reject() {
-        for (int i = 0; i < m_GroupCount; i++) {
+    void reject()
+    {
+        for (int i = 0; i < m_GroupCount; i++)
+        {
             m_LineEdits[i]->setText("");
         }
         this->close();

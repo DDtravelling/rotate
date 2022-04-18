@@ -10,9 +10,7 @@ namespace rviz_telop_commander
         : rviz::Panel(parent)
     {
         components_init();
-
         ui_init();
-        ros_init();
         connect_init();
 
         VisiblePath tst_path = createTestCurve();
@@ -40,35 +38,36 @@ namespace rviz_telop_commander
                 SLOT(on_comboBox_currentIndexChanged(int)));
 
         // path_edit_panel
-        connect(path_edit_panel.ui->button_rotate, SIGNAL(clicked()), this,
-                SLOT(on_button_rotate_clicked()));
-            
+        connect(UI_PATH->button_rotate, SIGNAL(clicked()), this,
+                SLOT(on_button_rotate_clicked_d()));
+        connect(UI_PATH->button_subx, SIGNAL(clicked()), this,
+                SLOT(on_button_subx_clicked_d()));
+        connect(UI_PATH->button_addx, SIGNAL(clicked()), this,
+                SLOT(on_button_addx_clicked_d()));
+        connect(UI_PATH->button_suby, SIGNAL(clicked()), this,
+                SLOT(on_button_suby_clicked_d()));
+        connect(UI_PATH->button_addy, SIGNAL(clicked()), this,
+                SLOT(on_button_addy_clicked_d()));
+        connect(UI_PATH->button_subz, SIGNAL(clicked()), this,
+                SLOT(on_button_subz_clicked_d()));
+        connect(UI_PATH->button_addz, SIGNAL(clicked()), this,
+                SLOT(on_button_addz_clicked_d()));
     }
 
     void TrajectoryEditPanel::ui_init()
     {
-        path_edit_panel.ui->setupUi(this);
-        visible_panel.ui->setupUi(this);
-        path_edit_panel.ui->hide();
-        visible_panel.ui->hide();
-
-        path_edit_panel.ui->table_path->setColumnCount(7);
+        UI_PATH->setupUi(this);
+        UI_VISIBLE->setupUi(this);
+        UI_PATH->hide();
+        UI_VISIBLE->hide();
+        UI_PATH->table_path->setColumnCount(7);
         QStringList headers;
         headers << QStringLiteral("x") << QStringLiteral("y") << QStringLiteral("z")
                 << QStringLiteral("qw") << QStringLiteral("qx") << QStringLiteral("qy")
                 << QStringLiteral("qz");
-        path_edit_panel.ui->table_path->setHorizontalHeaderLabels(headers);
-    }
-
-    void TrajectoryEditPanel::ros_init()
-    {
-        int argc = 0;
-        char **argv = NULL;
-        std::string node_name = "cvte_rviz_panel";
-        ros::init(argc, argv, node_name);
-        nh = new ros::NodeHandle();
-
-        pose_array_publisher = nh->advertise<geometry_msgs::PoseArray>("/tpc_pose_array", 10);
+        UI_PATH->table_path->setHorizontalHeaderLabels(headers);
+        UI_PATH->line_rotate->setText(QString("10"));
+        UI_PATH->line_move_step->setText(QString("0.01"));
     }
 
     // OPERATE:
@@ -97,33 +96,11 @@ namespace rviz_telop_commander
     {
         for (int i = 0; i < visible_path.path.size(); i++)
         {
-            path_edit_panel.ui->table_path->setRowCount(i + 1);
-            QTableWidgetItem *item0 = new QTableWidgetItem;
-            QTableWidgetItem *item1 = new QTableWidgetItem;
-            QTableWidgetItem *item2 = new QTableWidgetItem;
-            QTableWidgetItem *item3 = new QTableWidgetItem;
-            QTableWidgetItem *item4 = new QTableWidgetItem;
-            QTableWidgetItem *item5 = new QTableWidgetItem;
-            QTableWidgetItem *item6 = new QTableWidgetItem;
-
-            item0->setText(QString::number(visible_path.path[i].x, 'c', 2));
-            item1->setText(QString::number(visible_path.path[i].y, 'c', 2));
-            item2->setText(QString::number(visible_path.path[i].z, 'c', 2));
-            item3->setText(QString::number(visible_path.path[i].qw, 'c', 2));
-            item4->setText(QString::number(visible_path.path[i].qx, 'c', 2));
-            item5->setText(QString::number(visible_path.path[i].qy, 'c', 2));
-            item6->setText(QString::number(visible_path.path[i].qz, 'c', 2));
-
-            path_edit_panel.ui->table_path->setItem(i, 0, item0);
-            path_edit_panel.ui->table_path->setItem(i, 1, item1);
-            path_edit_panel.ui->table_path->setItem(i, 2, item2);
-            path_edit_panel.ui->table_path->setItem(i, 3, item3);
-            path_edit_panel.ui->table_path->setItem(i, 4, item4);
-            path_edit_panel.ui->table_path->setItem(i, 5, item5);
-            path_edit_panel.ui->table_path->setItem(i, 6, item6);
+            UI_PATH->table_path->setRowCount(i + 1);
+            setTableRow(visible_path.path[i], UI_PATH->table_path, i);
         }
 
-        if (visible_panel.ui->combox_path_mdl->currentIndex() == 0)
+        if (UI_VISIBLE->combox_path_mdl->currentIndex() == 0)
         {
             tablePoseArryPub();
         }
@@ -132,6 +109,45 @@ namespace rviz_telop_commander
             tableGroundPathPub();
         }
     }
+
+    VisiblePath TrajectoryEditPanel::rotateTable(double angle)
+    {
+        VisiblePath visible_path;
+        for (int i = 0; i < UI_PATH->table_path->rowCount(); i++)
+        {
+            double x, y, z;
+            double qw, qx, qy, qz;
+            readTableRow(x, y, z, qw, qx, qy, qz, UI_PATH->table_path, i);
+
+            Eigen::Quaterniond qua;
+            int axis = UI_PATH->combox_axies->currentIndex();
+            qua = EigenRotateManager::createQuat(qw, qx, qy, qz, angle, axis);
+            VisiblePose single_pose;
+            single_pose.setPosition(x, y, z);
+            single_pose.setOrientation(qua.w(), qua.x(), qua.y(), qua.z());
+
+            visible_path.path.push_back(single_pose);
+        }
+        return visible_path;
+    }
+
+    VisiblePath TrajectoryEditPanel::moveTable(double addx, double addy, double addz)
+    {
+        VisiblePath visible_path;
+        for (int i = 0; i < UI_PATH->table_path->rowCount(); i++)
+        {
+            double x, y, z;
+            double qw, qx, qy, qz;
+            readTableRow(x, y, z, qw, qx, qy, qz, UI_PATH->table_path, i);
+            x += addx, y += addy, z += addz;
+            VisiblePose single_pose;
+            single_pose.setPosition(x, y, z);
+            single_pose.setOrientation(qw, qx, qy, qz);
+            visible_path.path.push_back(single_pose);
+        }
+        return visible_path;
+    }
+
     // Publisher================================================:
     void TrajectoryEditPanel::tablePoseArryPub()
     {
@@ -139,20 +155,14 @@ namespace rviz_telop_commander
         msg_path.header.stamp = ros::Time::now();
         msg_path.header.frame_id = "map";
 
-        for (int i = 0; i < path_edit_panel.ui->table_path->rowCount(); i++)
+        for (int i = 0; i < UI_PATH->table_path->rowCount(); i++)
         {
             geometry_msgs::Pose point_pose;
-            point_pose.position.x = path_edit_panel.ui->table_path->item(i, 0)->text().toDouble();
-            point_pose.position.y = path_edit_panel.ui->table_path->item(i, 1)->text().toDouble();
-            point_pose.position.z = path_edit_panel.ui->table_path->item(i, 2)->text().toDouble();
-            point_pose.orientation.w = path_edit_panel.ui->table_path->item(i, 3)->text().toDouble();
-            point_pose.orientation.x = path_edit_panel.ui->table_path->item(i, 4)->text().toDouble();
-            point_pose.orientation.y = path_edit_panel.ui->table_path->item(i, 5)->text().toDouble();
-            point_pose.orientation.z = path_edit_panel.ui->table_path->item(i, 6)->text().toDouble();
+            readTableRow(point_pose, UI_PATH->table_path, i);
             msg_path.poses.push_back(point_pose);
         }
 
-        pose_array_publisher.publish(msg_path);
+        ros_manager.group_posearry_pub(msg_path);
     }
 
     void TrajectoryEditPanel::tableGroundPathPub()
@@ -165,90 +175,85 @@ namespace rviz_telop_commander
     {
         if (index == 0)
         {
-            path_edit_panel.ui->hide();
-            visible_panel.ui->hide();
+            UI_PATH->hide();
+            UI_VISIBLE->hide();
         }
 
         else if (index == 1)
         {
-            visible_panel.ui->hide();
-            path_edit_panel.ui->show();
+            UI_VISIBLE->hide();
+            UI_PATH->show();
         }
 
         else if (index == 2)
         {
-            path_edit_panel.ui->hide();
-            visible_panel.ui->show();
+            UI_PATH->hide();
+            UI_VISIBLE->show();
         }
     }
 
     // PathEditPanel:
-    void TrajectoryEditPanel::on_button_rotate_clicked()
+    void TrajectoryEditPanel::on_button_rotate_clicked_d()
     {
-        double angle = path_edit_panel.ui->line_rotate->text().toDouble() / 180.0 * PI_;
-        cout << angle << endl;
-        Eigen::AngleAxisd abs_rotx(angle, Eigen::Vector3d::UnitX());
-        Eigen::AngleAxisd abs_roty(angle, Eigen::Vector3d::UnitY());
-        Eigen::AngleAxisd abs_rotz(angle, Eigen::Vector3d::UnitZ());
+        double angle = UI_PATH->line_rotate->text().toDouble() / 180.0 * PI_;
+        VisiblePath visible_path = rotateTable(angle);
+        rotate_value += UI_PATH->line_rotate->text().toDouble();
+        UI_PATH->label_rotate_value->setText(QString::number(rotate_value, 'c', 2));
+        addPath2Table(visible_path);
+    }
 
-        VisiblePath visible_path;
-
-        for (int i = 0; i < path_edit_panel.ui->table_path->rowCount(); i++)
-        {
-            double x, y, z;
-            double qw, qx, qy, qz;
-            x = path_edit_panel.ui->table_path->item(i, 0)->text().toDouble();
-            y = path_edit_panel.ui->table_path->item(i, 1)->text().toDouble();
-            z = path_edit_panel.ui->table_path->item(i, 2)->text().toDouble();
-            qw = path_edit_panel.ui->table_path->item(i, 3)->text().toDouble();
-            qx = path_edit_panel.ui->table_path->item(i, 4)->text().toDouble();
-            qy = path_edit_panel.ui->table_path->item(i, 5)->text().toDouble();
-            qz = path_edit_panel.ui->table_path->item(i, 6)->text().toDouble();
-
-            Eigen::Quaterniond qua(qw, qx, qy, qz);
-            //自身x轴
-            if (path_edit_panel.ui->combox_axies->currentIndex() == 0)
-            {
-                qua = qua * abs_rotx;
-            }
-             //自身y轴          
-            else if (path_edit_panel.ui->combox_axies->currentIndex() == 1)
-            {
-                qua = qua * abs_roty;
-            }
-            //自身z轴
-            else if (path_edit_panel.ui->combox_axies->currentIndex() == 2)
-            {
-                qua = qua * abs_rotz;
-            }
-            //全局x轴
-            else if (path_edit_panel.ui->combox_axies->currentIndex() == 2)
-            {
-                qua = abs_rotx * qua;
-            }
-            //全局y轴
-            else if (path_edit_panel.ui->combox_axies->currentIndex() == 2)
-            {
-                qua = abs_roty * qua;
-            }
-            //全局z轴
-            else if (path_edit_panel.ui->combox_axies->currentIndex() == 2)
-            {
-                qua = abs_rotz * qua;
-            }
-
-            qw = qua.w();
-            qx = qua.x();
-            qy = qua.y();
-            qz = qua.z();
-
-            VisiblePose single_pose;
-            single_pose.setPosition(x, y, z);
-            single_pose.setOrientation(qw, qx, qy, qz);
-
-            visible_path.path.push_back(single_pose);
-        }
-
+    void TrajectoryEditPanel::on_button_subx_clicked_d()
+    {
+        double move_cnt = UI_PATH->line_move_step->text().toDouble();
+        VisiblePath visible_path = moveTable(-move_cnt, 0, 0);
+        move_x_value += move_cnt;
+        UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
+                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+        addPath2Table(visible_path);
+    }
+    void TrajectoryEditPanel::on_button_addx_clicked_d()
+    {
+        double move_cnt = UI_PATH->line_move_step->text().toDouble();
+        VisiblePath visible_path = moveTable(move_cnt, 0, 0);
+        move_x_value += move_cnt;
+        UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
+                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+        addPath2Table(visible_path);
+    }
+    void TrajectoryEditPanel::on_button_suby_clicked_d()
+    {
+        double move_cnt = UI_PATH->line_move_step->text().toDouble();
+        VisiblePath visible_path = moveTable(0, -move_cnt, 0);
+        move_y_value += move_cnt;
+       UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
+                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+        addPath2Table(visible_path);
+    }
+    void TrajectoryEditPanel::on_button_addy_clicked_d()
+    {
+        double move_cnt = UI_PATH->line_move_step->text().toDouble();
+        VisiblePath visible_path = moveTable(0, move_cnt, 0);
+        move_y_value += move_cnt;
+        UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
+                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+        addPath2Table(visible_path);
+    }
+    void TrajectoryEditPanel::on_button_addz_clicked_d()
+    {
+        double move_cnt = UI_PATH->line_move_step->text().toDouble();
+        VisiblePath visible_path = moveTable(0, 0, move_cnt);
+        move_z_value += move_cnt;
+        UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
+                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+        addPath2Table(visible_path);
+    }
+    void TrajectoryEditPanel::on_button_subz_clicked_d()
+    {
+        double move_cnt = UI_PATH->line_move_step->text().toDouble();
+        VisiblePath visible_path = moveTable(0, 0, -move_cnt);
+        move_z_value += move_cnt;
+        UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
+                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
         addPath2Table(visible_path);
     }
 }

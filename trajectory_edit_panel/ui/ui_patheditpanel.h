@@ -41,12 +41,12 @@ public:
     QLabel *label_rotate_value;
     QLabel *label_5;
     QPushButton *button_rotate;
-    QPushButton *pushButton;
-    QPushButton *pushButton_2;
-    QPushButton *pushButton_3;
-    QPushButton *pushButton_4;
-    QPushButton *pushButton_5;
-    QPushButton *pushButton_6;
+    QPushButton *button_subx;
+    QPushButton *button_addx;
+    QPushButton *button_suby;
+    QPushButton *button_addy;
+    QPushButton *button_addz;
+    QPushButton *button_subz;
     QLabel *label_6;
     QLabel *label_move_value;
     QLabel *label_7;
@@ -116,24 +116,24 @@ public:
         button_rotate = new QPushButton(tab);
         button_rotate->setObjectName(QStringLiteral("button_rotate"));
         button_rotate->setGeometry(QRect(40, 140, 89, 25));
-        pushButton = new QPushButton(tab);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
-        pushButton->setGeometry(QRect(360, 20, 51, 31));
-        pushButton_2 = new QPushButton(tab);
-        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
-        pushButton_2->setGeometry(QRect(360, 130, 51, 31));
-        pushButton_3 = new QPushButton(tab);
-        pushButton_3->setObjectName(QStringLiteral("pushButton_3"));
-        pushButton_3->setGeometry(QRect(290, 70, 51, 31));
-        pushButton_4 = new QPushButton(tab);
-        pushButton_4->setObjectName(QStringLiteral("pushButton_4"));
-        pushButton_4->setGeometry(QRect(430, 70, 51, 31));
-        pushButton_5 = new QPushButton(tab);
-        pushButton_5->setObjectName(QStringLiteral("pushButton_5"));
-        pushButton_5->setGeometry(QRect(530, 20, 51, 31));
-        pushButton_6 = new QPushButton(tab);
-        pushButton_6->setObjectName(QStringLiteral("pushButton_6"));
-        pushButton_6->setGeometry(QRect(530, 130, 51, 31));
+        button_subx = new QPushButton(tab);
+        button_subx->setObjectName(QStringLiteral("button_subx"));
+        button_subx->setGeometry(QRect(360, 20, 51, 31));
+        button_addx = new QPushButton(tab);
+        button_addx->setObjectName(QStringLiteral("button_addx"));
+        button_addx->setGeometry(QRect(360, 130, 51, 31));
+        button_suby = new QPushButton(tab);
+        button_suby->setObjectName(QStringLiteral("button_suby"));
+        button_suby->setGeometry(QRect(290, 70, 51, 31));
+        button_addy = new QPushButton(tab);
+        button_addy->setObjectName(QStringLiteral("button_addy"));
+        button_addy->setGeometry(QRect(430, 70, 51, 31));
+        button_addz = new QPushButton(tab);
+        button_addz->setObjectName(QStringLiteral("button_addz"));
+        button_addz->setGeometry(QRect(530, 20, 51, 31));
+        button_subz = new QPushButton(tab);
+        button_subz->setObjectName(QStringLiteral("button_subz"));
+        button_subz->setGeometry(QRect(530, 130, 51, 31));
         label_6 = new QLabel(tab);
         label_6->setObjectName(QStringLiteral("label_6"));
         label_6->setGeometry(QRect(620, 10, 71, 31));
@@ -162,7 +162,6 @@ public:
 
         tabWidget->setCurrentIndex(0);
 
-
         QMetaObject::connectSlotsByName(PathEditPanel);
     } // setupUi
 
@@ -172,13 +171,12 @@ public:
         groupbox_path->setTitle(QApplication::translate("PathEditPanel", "\350\246\206\347\233\226\350\275\250\350\277\271\357\274\232", Q_NULLPTR));
         combox_axies->clear();
         combox_axies->insertItems(0, QStringList()
-         << QApplication::translate("PathEditPanel", "\350\207\252\350\272\253X\350\275\264", Q_NULLPTR)
-         << QApplication::translate("PathEditPanel", "\350\207\252\350\272\253Y\350\275\264", Q_NULLPTR)
-         << QApplication::translate("PathEditPanel", "\350\207\252\350\272\253Z\350\275\264", Q_NULLPTR)
-         << QApplication::translate("PathEditPanel", "\345\205\250\345\261\200X\350\275\264", Q_NULLPTR)
-         << QApplication::translate("PathEditPanel", "\345\205\250\345\261\200Y\350\275\264", Q_NULLPTR)
-         << QApplication::translate("PathEditPanel", "\345\205\250\345\261\200Z\350\275\264", Q_NULLPTR)
-        );
+                                         << QApplication::translate("PathEditPanel", "\350\207\252\350\272\253X\350\275\264", Q_NULLPTR)
+                                         << QApplication::translate("PathEditPanel", "\350\207\252\350\272\253Y\350\275\264", Q_NULLPTR)
+                                         << QApplication::translate("PathEditPanel", "\350\207\252\350\272\253Z\350\275\264", Q_NULLPTR)
+                                         << QApplication::translate("PathEditPanel", "\345\205\250\345\261\200X\350\275\264", Q_NULLPTR)
+                                         << QApplication::translate("PathEditPanel", "\345\205\250\345\261\200Y\350\275\264", Q_NULLPTR)
+                                         << QApplication::translate("PathEditPanel", "\345\205\250\345\261\200Z\350\275\264", Q_NULLPTR));
         label->setText(QApplication::translate("PathEditPanel", "\346\227\213\350\275\254\350\275\264    \357\274\232", Q_NULLPTR));
         label_2->setText(QApplication::translate("PathEditPanel", "\345\272\246", Q_NULLPTR));
         label_3->setText(QApplication::translate("PathEditPanel", "\346\227\213\350\275\254\350\247\222\345\272\246\357\274\232", Q_NULLPTR));
@@ -186,12 +184,12 @@ public:
         label_rotate_value->setText(QString());
         label_5->setText(QApplication::translate("PathEditPanel", "\345\272\246", Q_NULLPTR));
         button_rotate->setText(QApplication::translate("PathEditPanel", "\346\227\213\350\275\254", Q_NULLPTR));
-        pushButton->setText(QApplication::translate("PathEditPanel", "\345\220\216\351\200\200", Q_NULLPTR));
-        pushButton_2->setText(QApplication::translate("PathEditPanel", "\345\211\215\350\277\233", Q_NULLPTR));
-        pushButton_3->setText(QApplication::translate("PathEditPanel", "\345\267\246\347\247\273", Q_NULLPTR));
-        pushButton_4->setText(QApplication::translate("PathEditPanel", "\345\217\263\347\247\273", Q_NULLPTR));
-        pushButton_5->setText(QApplication::translate("PathEditPanel", "\344\270\212\347\247\273", Q_NULLPTR));
-        pushButton_6->setText(QApplication::translate("PathEditPanel", "\344\270\213\347\247\273", Q_NULLPTR));
+        button_subx->setText(QApplication::translate("PathEditPanel", "\345\220\216\351\200\200", Q_NULLPTR));
+        button_addx->setText(QApplication::translate("PathEditPanel", "\345\211\215\350\277\233", Q_NULLPTR));
+        button_suby->setText(QApplication::translate("PathEditPanel", "\345\267\246\347\247\273", Q_NULLPTR));
+        button_addy->setText(QApplication::translate("PathEditPanel", "\345\217\263\347\247\273", Q_NULLPTR));
+        button_addz->setText(QApplication::translate("PathEditPanel", "\344\270\212\347\247\273", Q_NULLPTR));
+        button_subz->setText(QApplication::translate("PathEditPanel", "\344\270\213\347\247\273", Q_NULLPTR));
         label_6->setText(QApplication::translate("PathEditPanel", "\347\247\273\345\212\250\345\242\236\351\207\217\357\274\232", Q_NULLPTR));
         label_move_value->setText(QString());
         label_7->setText(QApplication::translate("PathEditPanel", "\347\247\273\345\212\250\346\255\245\351\225\277\357\274\232", Q_NULLPTR));
@@ -199,11 +197,13 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("PathEditPanel", "\346\227\213\350\275\254\345\271\263\347\247\273\350\275\250\350\277\271", Q_NULLPTR));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("PathEditPanel", "\345\210\240\351\231\244\350\275\250\350\277\271", Q_NULLPTR));
     } // retranslateUi
-
 };
 
-namespace Ui {
-    class PathEditPanel: public Ui_PathEditPanel {};
+namespace Ui
+{
+    class PathEditPanel : public Ui_PathEditPanel
+    {
+    };
 } // namespace Ui
 
 QT_END_NAMESPACE
