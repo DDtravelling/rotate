@@ -1,0 +1,9 @@
+
+<launch>
+  <node
+    name="rviz"
+    pkg="rviz"
+    type="rviz"
+     args="-d $(find trajectory_edit_panel)/launch/tr.rviz" />
+
+</launch>

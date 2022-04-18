@@ -26,6 +26,7 @@ else()
                                  QT_MOC 
                                  include/TrajectoryEditPanel.h
                                  include/qt5_compoment.h
+                                 include/rosInit.h
                                  RvizPanel/patheditpanel.h
                                  RvizPanel/visiblepanel.h
                                  )
