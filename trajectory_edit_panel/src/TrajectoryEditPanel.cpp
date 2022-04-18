@@ -52,6 +52,10 @@ namespace rviz_telop_commander
                 SLOT(on_button_subz_clicked_d()));
         connect(UI_PATH->button_addz, SIGNAL(clicked()), this,
                 SLOT(on_button_addz_clicked_d()));
+
+        // visible_panel
+        connect(UI_VISIBLE->combox_path_mdl, SIGNAL(currentIndexChanged(int)), this,
+                SLOT(combox_path_mdl_index_change(int)));
     }
 
     void TrajectoryEditPanel::ui_init()
@@ -161,12 +165,43 @@ namespace rviz_telop_commander
             readTableRow(point_pose, UI_PATH->table_path, i);
             msg_path.poses.push_back(point_pose);
         }
+        ros_manager.ground_posearry_pub(msg_path);
+    }
 
-        ros_manager.group_posearry_pub(msg_path);
+    void TrajectoryEditPanel::tablePoseArryPubVoid()
+    {
+        geometry_msgs::PoseArray msg_path;
+        msg_path.header.stamp = ros::Time::now();
+        msg_path.header.frame_id = "map";
+        ros_manager.ground_posearry_pub(msg_path);
     }
 
     void TrajectoryEditPanel::tableGroundPathPub()
     {
+        nav_msgs::Path msg_path;
+        msg_path.header.stamp = ros::Time::now();
+        msg_path.header.frame_id = "/map";
+        double x, y, z, qw, qx, qy, qz;
+
+        for (int i = 0; i < UI_PATH->table_path->rowCount(); i++)
+        {
+            readTableRow(x, y, z, qw, qx, qy, qz, UI_PATH->table_path, i);
+            geometry_msgs::PoseStamped this_pose_stamped;
+            this_pose_stamped.pose.position.x = x, this_pose_stamped.pose.position.y = y, this_pose_stamped.pose.position.z = z;
+            this_pose_stamped.pose.orientation.x = qx, this_pose_stamped.pose.orientation.y = qy, this_pose_stamped.pose.orientation.z = qz, this_pose_stamped.pose.orientation.w = qw;
+            this_pose_stamped.header.stamp = ros::Time::now();
+            this_pose_stamped.header.frame_id = "/map";
+            msg_path.poses.push_back(this_pose_stamped);
+        }
+        ros_manager.ground_path_pub(msg_path);
+    }
+
+    void TrajectoryEditPanel::tableGroundPathPubVoid()
+    {
+        nav_msgs::Path msg_path;
+        msg_path.header.stamp = ros::Time::now();
+        msg_path.header.frame_id = "/map";
+        ros_manager.ground_path_pub(msg_path);
     }
 
     // SLOTS==================================================:
@@ -196,9 +231,10 @@ namespace rviz_telop_commander
     void TrajectoryEditPanel::on_button_rotate_clicked_d()
     {
         double angle = UI_PATH->line_rotate->text().toDouble() / 180.0 * PI_;
+        int axis = UI_PATH->combox_axies->currentIndex();
+        rotate_value[axis] += UI_PATH->line_rotate->text().toDouble();
         VisiblePath visible_path = rotateTable(angle);
-        rotate_value += UI_PATH->line_rotate->text().toDouble();
-        UI_PATH->label_rotate_value->setText(QString::number(rotate_value, 'c', 2));
+        UI_PATH->label_rotate_value->setText(QString::number(rotate_value[axis], 'c', 2));
         addPath2Table(visible_path);
     }
 
@@ -208,7 +244,7 @@ namespace rviz_telop_commander
         VisiblePath visible_path = moveTable(-move_cnt, 0, 0);
         move_x_value += move_cnt;
         UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
-                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+                                           QString(",") + QString::number(move_y_value, 'c', 2) + QString(",") + QString::number(move_z_value, 'c', 2));
         addPath2Table(visible_path);
     }
     void TrajectoryEditPanel::on_button_addx_clicked_d()
@@ -217,7 +253,7 @@ namespace rviz_telop_commander
         VisiblePath visible_path = moveTable(move_cnt, 0, 0);
         move_x_value += move_cnt;
         UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
-                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+                                           QString(",") + QString::number(move_y_value, 'c', 2) + QString(",") + QString::number(move_z_value, 'c', 2));
         addPath2Table(visible_path);
     }
     void TrajectoryEditPanel::on_button_suby_clicked_d()
@@ -225,8 +261,8 @@ namespace rviz_telop_commander
         double move_cnt = UI_PATH->line_move_step->text().toDouble();
         VisiblePath visible_path = moveTable(0, -move_cnt, 0);
         move_y_value += move_cnt;
-       UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
-                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+        UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
+                                           QString(",") + QString::number(move_y_value, 'c', 2) + QString(",") + QString::number(move_z_value, 'c', 2));
         addPath2Table(visible_path);
     }
     void TrajectoryEditPanel::on_button_addy_clicked_d()
@@ -235,7 +271,7 @@ namespace rviz_telop_commander
         VisiblePath visible_path = moveTable(0, move_cnt, 0);
         move_y_value += move_cnt;
         UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
-                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+                                           QString(",") + QString::number(move_y_value, 'c', 2) + QString(",") + QString::number(move_z_value, 'c', 2));
         addPath2Table(visible_path);
     }
     void TrajectoryEditPanel::on_button_addz_clicked_d()
@@ -244,7 +280,7 @@ namespace rviz_telop_commander
         VisiblePath visible_path = moveTable(0, 0, move_cnt);
         move_z_value += move_cnt;
         UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
-                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+                                           QString(",") + QString::number(move_y_value, 'c', 2) + QString(",") + QString::number(move_z_value, 'c', 2));
         addPath2Table(visible_path);
     }
     void TrajectoryEditPanel::on_button_subz_clicked_d()
@@ -253,7 +289,22 @@ namespace rviz_telop_commander
         VisiblePath visible_path = moveTable(0, 0, -move_cnt);
         move_z_value += move_cnt;
         UI_PATH->label_move_value->setText(QString::number(move_x_value, 'c', 2) +
-                                  QString("\n") + QString::number(move_y_value, 'c', 2) + QString("\n") + QString::number(move_z_value, 'c', 2));
+                                           QString(",") + QString::number(move_y_value, 'c', 2) + QString(",") + QString::number(move_z_value, 'c', 2));
         addPath2Table(visible_path);
+    }
+
+    // visible Panel:
+    void TrajectoryEditPanel::combox_path_mdl_index_change(int index)
+    {
+        if (index == 0)
+        {
+            tableGroundPathPubVoid();
+            tablePoseArryPub();
+        }
+        else if (index == 1)
+        {
+             tablePoseArryPubVoid();
+             tableGroundPathPub();
+        }
     }
 }

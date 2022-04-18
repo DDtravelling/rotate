@@ -140,7 +140,7 @@ public:
         label_6->setFont(font);
         label_move_value = new QLabel(tab);
         label_move_value->setObjectName(QStringLiteral("label_move_value"));
-        label_move_value->setGeometry(QRect(700, 20, 61, 81));
+        label_move_value->setGeometry(QRect(700, 11, 111, 31));
         label_move_value->setFont(font);
         label_7 = new QLabel(tab);
         label_7->setObjectName(QStringLiteral("label_7"));

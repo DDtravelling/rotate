@@ -20,7 +20,6 @@
 using namespace std;
 namespace rviz_telop_commander
 {
-
     class TrajectoryEditPanel : public rviz::Panel
     {
         Q_OBJECT
@@ -29,7 +28,7 @@ namespace rviz_telop_commander
         QComboBox *comboBox;
         PathEditPanel path_edit_panel;
         visiblePanel visible_panel;
-        double rotate_value = 0;
+        double rotate_value[6] = {0};
         double move_x_value = 0;
         double move_y_value = 0;
         double move_z_value = 0;
@@ -50,7 +49,9 @@ namespace rviz_telop_commander
 
         // publisher:
         void tablePoseArryPub();
+        void tablePoseArryPubVoid();
         void tableGroundPathPub();
+        void tableGroundPathPubVoid();
 
     protected Q_SLOTS:
         // mainPanel:
@@ -64,6 +65,9 @@ namespace rviz_telop_commander
         void on_button_addy_clicked_d();
         void on_button_addz_clicked_d();
         void on_button_subz_clicked_d();
+
+        //visiblePanel
+        void combox_path_mdl_index_change(int index);
     };
 
 }
